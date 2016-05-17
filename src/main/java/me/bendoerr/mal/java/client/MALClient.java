@@ -4,6 +4,7 @@ import lombok.NonNull;
 import me.bendoerr.mal.java.client.model.AnimeEntry;
 import me.bendoerr.mal.java.client.model.AnimeListEntry;
 import me.bendoerr.mal.java.client.model.AnimeListEntryValues;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 
@@ -68,14 +69,15 @@ public class MALClient implements AutoCloseable {
             @NonNull final String password,
             @NonNull final String malUrl) {
 
-        final HttpAuthenticationFeature feature = HttpAuthenticationFeature
-                .basicBuilder()
-                .credentials(username, password)
-                .build();
-
         client = ClientBuilder.newClient(
                 new ClientConfig()
-                        .register(feature));
+                        // Use the Apache HTTP Connector
+                        .connectorProvider(new ApacheConnectorProvider())
+
+                        // Configure credentials for basic auth
+                        .register(HttpAuthenticationFeature.basicBuilder()
+                                .credentials(username, password)
+                                .build()));
 
         this.malUrl = malUrl;
     }
